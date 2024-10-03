@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Building a Financial Dashboard with Streamlit</title>
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/black.css">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css">
+		<style>
+			.reveal p, .reveal ul, .reveal ol {
+				font-size: 0.8em;
+			}
+			.reveal pre {
+				font-size: 0.3em;
+			}
+			.reveal h1 {
+				font-size: 2.2em;
+			}
+			.reveal h2 {
+				font-size: 1.8em;
+			}
+			.reveal h3 {
+				font-size: 1.4em;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h2>Financial Dashboard with Streamlit</h2>
+					<!-- <h3>A Hands-on Workshop</h3> -->
+					<p>by Pranav Karra</p>
+				</section>
+
+				<section>
+					<h2>Workshop Outline</h2>
+					<ol>
+						<li class="fragment">Introduction to Cursor IDE and AI-assisted Coding</li>
+						<li class="fragment">Setting up the Python Environment</li>
+						<li class="fragment">Introduction to Streamlit</li>
+						<li class="fragment">Building the Financial Dashboard</li>
+						<li class="fragment">Implementing Predictions</li>
+						<li class="fragment">Limitations and Improvements</li>
+					</ol>
+				</section>
+
+				<section>
+					<h2>Cursor IDE</h2>
+					<a href="https://cursor.com" target="_blank">
+						<img src="images/" alt="Cursor IDE Logo" style="width: 30%;" />
+					</a>
+					<!-- <p><a href="https://cursor.com" target="_blank">Visit Cursor IDE</a></p> -->
+				</section>
+
+				<section>
+					<h3>AI Models in Coding</h3>
+					<ul>
+						<!-- <li class="fragment">AI models can generate code quickly and efficiently</li> -->
+						<li class="fragment">It's okay to use AI-generated code, but understanding and editing are crucial</li>
+						<li class="fragment">Focus on problem-solving and conceptual understanding</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>AI in Machine Learning Development</h3>
+					<ul>
+						<li class="fragment">Understanding concepts and math is more important than coding from scratch</li>
+						<li class="fragment">AI models are designed to be used</li>
+						<li class="fragment">Focus on applying models to solve specific problems</li>
+						<li class="fragment">Emphasis on interpretation and fine-tuning rather than implementation</li>
+					</ul>
+				</section>
+
+				<!-- <section>
+					<h2>2. Setting up the Python Environment</h2>
+				</section> -->
+
+				<section>
+					<h3>Creating a Virtual Environment 🐍</h3>
+					<pre><code class="language-bash" data-line-numbers="1|2">python -m venv fvenv/bin/activate  # On Windows: venv\Scripts\activate
+pip install streamlit pandas altair scikit-learn
+					</code></pre>
+					<p>This creates an isolated environment for our project</p>
+				</section>
+				<section>
+					<h3>Installing Required Libraries</h3>
+					<pre><code class="language-bash" data-line-numbers>pip install streamlit pandas scikit-learn altair</code></pre>
+					<p>This installs the necessary libraries for our project:</p>
+					<ul>
+						<li>Streamlit: For creating the web app</li>
+						<li>Pandas: For data manipulation</li>
+						<li>Scikit-learn: For machine learning models</li>
+						<li>Altair: For data visualization</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Introduction to Streamlit</h2>
+					<img src="https://miro.medium.com/v2/resize:fit:628/1*MpZGG5oPHVFlFDTu4b_1IA.png" alt="Streamlit Logo" style="width: 30%;" />
+				</section>
+
+				<section>
+					<h3>What is Streamlit?</h3>
+					<ul>
+						<li>Python library for creating web apps</li>
+						<li>Designed for data science projects</li>
+						<li>Rapid prototyping and deployment</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>Your First Streamlit App</h3>
+					<pre><code class="language-python" data-line-numbers="1|3-4|6-7">import streamlit as st
+
+st.title("Hello, Streamlit!")
+st.write("Welcome to our workshop!")
+
+if st.button("Click me!"):
+    st.balloons()
+					</code></pre>
+				</section>
+
+				<section>
+					<h3>Running a Streamlit App</h3>
+					<pre><code class="language-bash">streamlit run your_app.py</code></pre>
+					<p>Your app will open in a new browser tab</p>
+				</section>
+
+				<section>
+					<h2>Building the Financial Dashboard 📊</h2>
+				</section>
+
+				<section>
+					<h3>Setting Up the Dashboard</h3>
+					<pre><code class="language-python" data-line-numbers="1-5|7|9|10|11|12|13|10-16">import streamlit as st
+import pandas as pd
+import altair as alt
+from datetime import datetime
+from prediction_model import predict_future_transactions
+
+st.set_page_config(page_title="Financial Dashboard", layout="wide")
+
+@st.cache_data
+def load_data():
+    df = pd.read_csv('data.csv')
+    df['date'] = pd.to_datetime(df['date'])
+    df['Transaction Amount'] = df['Transaction Amount'].astype(float)
+    return df
+
+df = load_data()
+					</code></pre>
+				</section>
+
+				<section>
+					<h3>Creating Filters</h3>
+					<pre><code class="language-python" data-line-numbers="1|2|3|5-7|10-12">st.sidebar.header("Filters")
+categories = ['All'] + sorted(df['Category'].unique().tolist())
+selected_category = st.sidebar.selectbox("Select Category", categories)
+
+months = pd.to_datetime(df['date']).dt.to_period('M').unique()
+month_options = ['All'] + [month.strftime('%B %Y') for month in sorted(months)]
+selected_month = st.sidebar.selectbox("Select Month", month_options)
+
+# Apply filters
+filtered_df = df
+if selected_category != 'All':
+    filtered_df = filtered_df[filtered_df['Category'] == selected_category]
+if selected_month != 'All':
+    selected_period = pd.Period(selected_month)
+    filtered_df = filtered_df[pd.to_datetime(filtered_df['date']).dt.to_period('M') == selected_period]
+					</code></pre>
+				</section>
+
+				<section>
+					<h3>Displaying Key Metrics</h3>
+					<pre><code class="language-python" data-line-numbers="1-5|7-10">col1, col2, col3, col4 = st.columns(4)
+total_transactions = filtered_df['Transaction Amount'].sum()
+average_transaction = filtered_df['Transaction Amount'].mean()
+total_income = filtered_df[filtered_df['Transaction Amount'] > 0]['Transaction Amount'].sum()
+total_expenses = abs(filtered_df[filtered_df['Transaction Amount'] < 0]['Transaction Amount'].sum())
+
+col1.metric("Net Transaction Amount", f"${total_transactions:,.2f}")
+col2.metric("Average Transaction Amount", f"${average_transaction:,.2f}")
+col3.metric("Total Income", f"${total_income:,.2f}")
+col4.metric("Total Expenses", f"${total_expenses:,.2f}")
+					</code></pre>
+				</section>
+
+				<section>
+					<h3>Creating Charts</h3>
+					<pre><code class="language-python" data-line-numbers="1|2-8|9">daily_data = filtered_df.groupby('date')['Transaction Amount'].sum().reset_index()
+chart_transactions = alt.Chart(daily_data).mark_line().encode(
+    x='date:T',
+    y='Transaction Amount:Q',
+    tooltip=['date:T', 'Transaction Amount:Q']
+).properties(
+    title='Daily Transaction Amount Over Time'
+)
+st.altair_chart(chart_transactions, use_container_width=True)
+
+# Similar code for income and expenditure pie charts
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Implementing Predictions 🔮</h2>
+				</section>
+
+				<section>
+					<h3>Prediction Model Overview</h3>
+					<ul>
+						<li>Uses LinearRegression from scikit-learn</li>
+						<li>Separate models for income and expenditure</li>
+						<li>Predicts transactions for the next 30 days</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>Prediction Model Implementation</h3>
+					<pre><code class="language-python" data-line-numbers="1-4|6-11|13-20">def prepare_data(df):
+    df['date'] = pd.to_datetime(df['date'])
+    df['days_since_start'] = (df['date'] - df['date'].min()).dt.days
+    return df
+
+def train_model(df, target):
+    X = df[['days_since_start']]
+    y = df[target]
+    model = LinearRegression()
+    model.fit(X, y)
+    return model
+
+def make_predictions(model, df, days_to_predict=30):
+    last_date = df['date'].max()
+    future_dates = pd.date_range(start=last_date + timedelta(days=1), periods=days_to_predict)
+    future_df = pd.DataFrame({'date': future_dates})
+    future_df['days_since_start'] = (future_df['date'] - df['date'].min()).dt.days
+    predictions = model.predict(future_df[['days_since_start']])
+    future_df['prediction'] = predictions
+    return future_df
+					</code></pre>
+				</section>
+
+				<section>
+					<h3>Displaying Predictions in Streamlit 🔮</h3>
+					<pre><code class="language-python" data-line-numbers="1|3-4|6|7-14|15">future_income, future_expenditure = predict_future_transactions(df)
+
+st.header("Predictions")
+col1, col2 = st.columns(2)
+
+with col1:
+    st.subheader("Predicted Income")
+    chart_predicted_income = alt.Chart(future_income).mark_line().encode(
+        x='date:T',
+        y='prediction:Q',
+        tooltip=['date:T', 'prediction:Q']
+    ).properties(
+        title='Predicted Daily Income for Next 30 Days'
+    )
+    st.altair_chart(chart_predicted_income, use_container_width=True)
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Limitations and Improvements 🧠</h2>
+				</section>
+
+				<section>
+					<h3>Limitations of Linear Regression</h3>
+					<ul>
+						<li class="fragment">Assumes a linear relationship between time and transactions</li>
+						<li class="fragment">Doesn't account for seasonality or complex patterns</li>
+						<li class="fragment">May not capture sudden changes or outliers effectively</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>Potential Improvements</h3>
+					<ul>
+						<li class="fragment">Time series models (e.g., ARIMA, Prophet)</li>
+						<li class="fragment">Machine learning models (e.g., Random Forest, XGBoost)</li>
+						<li class="fragment">Incorporate external factors (e.g., economic indicators)</li>
+						<li class="fragment">Ensemble methods for combining multiple models</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Conclusion</h2>
+					<ul>
+						<li class="fragment">We've built a basic financial dashboard</li>
+						<li class="fragment">Learned how to use Streamlit for rapid development</li>
+						<li class="fragment">Implemented simple predictions using linear regression</li>
+						<li class="fragment">Discussed limitations and potential improvements</li>
+						<li class="fragment">Remember: Understanding concepts is key in ML development</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Q&A</h2>
+					<p>Thank you for attending!</p>
+				</section>
+			</div>
+		</div>
+
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script>
+			Reveal.initialize({
+				hash: true,
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+			});
+		</script>
+	</body>
+</html>
