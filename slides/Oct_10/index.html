@@ -4,7 +4,11 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
+<<<<<<< Updated upstream
 		<title>reveal.js</title>
+=======
+		<title>Linear Regression: Concept, Math, and Implementation</title>
+>>>>>>> Stashed changes
 
 		<link rel="stylesheet" href="dist/reset.css">
 		<link rel="stylesheet" href="dist/reveal.css">
@@ -16,8 +20,225 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
+<<<<<<< Updated upstream
 				<section>Slide 1</section>
 				<section>Slide 2</section>
+=======
+				<section>
+					<h1>Linear Regression</h1>
+					<h3>Concept, Mathematics, and Implementation</h3>
+				</section>
+
+				<section>
+					<h2>What is Regression?</h2>
+					<ul>
+						<li class="fragment" data-fragment-index="1">Statistical method for modeling relationship between variables</li>
+						<li class="fragment" data-fragment-index="2">Predicts a dependent variable based on independent variable(s)</li>
+						<li class="fragment" data-fragment-index="3">Linear regression is the simplest form</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Linear Regression</h2>
+					<ul>
+						<li class="fragment" data-fragment-index="1">Models linear relationship between variables</li>
+						<li class="fragment" data-fragment-index="2">Assumes a straight line can approximate the relationship</li>
+						<li class="fragment" data-fragment-index="3">Goal: Find the best-fitting line</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Simple Linear Regression Equation</h2>
+					<p class="fragment" data-fragment-index="1">\[ y = mx + b \]</p>
+					<p class="fragment" data-fragment-index="2">Where:</p>
+					<ul>
+						<li class="fragment" data-fragment-index="3">\( y \) is the dependent variable</li>
+						<li class="fragment" data-fragment-index="4">\( x \) is the independent variable</li>
+						<li class="fragment" data-fragment-index="5">\( m \) is the slope</li>
+						<li class="fragment" data-fragment-index="6">\( b \) is the y-intercept</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Multiple Linear Regression</h2>
+					<p class="fragment" data-fragment-index="1">\[ y = \beta_0 + \beta_1x_1 + \beta_2x_2 + ... + \beta_nx_n + \epsilon \]</p>
+					<p class="fragment" data-fragment-index="2">Where:</p>
+					<ul>
+						<li class="fragment" data-fragment-index="3">\( y \) is the dependent variable</li>
+						<li class="fragment" data-fragment-index="4">\( x_1, x_2, ..., x_n \) are independent variables</li>
+						<li class="fragment" data-fragment-index="5">\( \beta_0, \beta_1, ..., \beta_n \) are coefficients</li>
+						<li class="fragment" data-fragment-index="6">\( \epsilon \) is the error term</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Ordinary Least Squares (OLS)</h2>
+					<ul>
+						<li class="fragment" data-fragment-index="1">Method to estimate coefficients</li>
+						<li class="fragment" data-fragment-index="2">Minimizes the sum of squared residuals</li>
+						<li class="fragment" data-fragment-index="3">Residual: Difference between observed and predicted values</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>OLS Objective Function</h2>
+					<p class="fragment" data-fragment-index="1">Minimize:</p>
+					<p class="fragment" data-fragment-index="2">\[ \sum_{i=1}^n (y_i - \hat{y}_i)^2 \]</p>
+					<p class="fragment" data-fragment-index="3">Where:</p>
+					<ul>
+						<li class="fragment" data-fragment-index="4">\( y_i \) is the observed value</li>
+						<li class="fragment" data-fragment-index="5">\( \hat{y}_i \) is the predicted value</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Assumptions of Linear Regression</h2>
+					<ul>
+						<li class="fragment" data-fragment-index="1">Linearity: Relationship between X and Y is linear</li>
+						<li class="fragment" data-fragment-index="2">Independence: Observations are independent</li>
+						<li class="fragment" data-fragment-index="3">Homoscedasticity: Constant variance of residuals</li>
+						<li class="fragment" data-fragment-index="4">Normality: Residuals are normally distributed</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Implementing Linear Regression with NumPy</h2>
+					<pre><code class="python" data-line-numbers="1|3-5|7-8|10-11|13-14">import numpy as np
+
+# Generate sample data
+X = np.array([1, 2, 3, 4, 5]).reshape(-1, 1)
+y = np.array([2, 4, 5, 4, 5])
+
+# Add intercept term to X
+X_b = np.c_[np.ones((X.shape[0], 1)), X]
+
+# Calculate coefficients
+theta = np.linalg.inv(X_b.T.dot(X_b)).dot(X_b.T).dot(y)
+
+# Print results
+print(f"Intercept: {theta[0]}, Slope: {theta[1]}")
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Prediction with NumPy Implementation</h2>
+					<pre><code class="python" data-line-numbers="1-3|5-8|9"># Function to make predictions
+def predict(X, theta):
+    return np.dot(np.c_[np.ones((X.shape[0], 1)), X], theta)
+
+# Make predictions
+X_new = np.array([[0], [2], [4], [6]])
+y_pred = predict(X_new, theta)
+
+print("Predictions:", y_pred)
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Linear Regression with scikit-learn</h2>
+					<pre><code class="python">
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+
+# Prepare data
+X = np.array([1, 2, 3, 4, 5]).reshape(-1, 1)
+y = np.array([2, 4, 5, 4, 5])
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create and train model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Print results
+print(f"Intercept: {model.intercept_}, Slope: {model.coef_[0]}")
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Prediction with scikit-learn</h2>
+					<pre><code class="python"># Make predictions
+X_new = np.array([[0], [2], [4], [6]])
+y_pred = model.predict(X_new)
+
+print("Predictions:", y_pred)
+
+# Evaluate model
+from sklearn.metrics import mean_squared_error, r2_score
+
+y_pred_test = model.predict(X_test)
+mse = mean_squared_error(y_test, y_pred_test)
+r2 = r2_score(y_test, y_pred_test)
+
+print(f"Mean Squared Error: {mse}")
+print(f"R-squared: {r2}")
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Advantages of scikit-learn</h2>
+					<ul>
+						<li class="fragment" data-fragment-index="1">Easy to use and understand</li>
+						<li class="fragment" data-fragment-index="2">Consistent API across different models</li>
+						<li class="fragment" data-fragment-index="3">Built-in cross-validation and model selection tools</li>
+						<li class="fragment" data-fragment-index="4">Efficient implementation for large datasets</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Evaluating Linear Regression</h2>
+					<ul>
+						<li class="fragment" data-fragment-index="1">Mean Squared Error (MSE)</li>
+						<li class="fragment" data-fragment-index="2">Root Mean Squared Error (RMSE)</li>
+						<li class="fragment" data-fragment-index="3">R-squared (Coefficient of Determination)</li>
+						<li class="fragment" data-fragment-index="4">Adjusted R-squared</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Mean Squared Error (MSE)</h2>
+					<p class="fragment" data-fragment-index="1">\[ MSE = \frac{1}{n} \sum_{i=1}^n (y_i - \hat{y}_i)^2 \]</p>
+					<ul>
+						<li class="fragment" data-fragment-index="2">Measures average squared difference between predicted and actual values</li>
+						<li class="fragment" data-fragment-index="3">Lower values indicate better fit</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>R-squared</h2>
+					<p class="fragment" data-fragment-index="1">\[ R^2 = 1 - \frac{\sum_{i=1}^n (y_i - \hat{y}_i)^2}{\sum_{i=1}^n (y_i - \bar{y})^2} \]</p>
+					<ul>
+						<li class="fragment" data-fragment-index="2">Proportion of variance in dependent variable explained by model</li>
+						<li class="fragment" data-fragment-index="3">Ranges from 0 to 1 (higher is better)</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Limitations of Linear Regression</h2>
+					<ul>
+						<li class="fragment" data-fragment-index="1">Assumes linear relationship (may not always hold)</li>
+						<li class="fragment" data-fragment-index="2">Sensitive to outliers</li>
+						<li class="fragment" data-fragment-index="3">Can overfit with too many features</li>
+						<li class="fragment" data-fragment-index="4">Assumes independence of features (multicollinearity issues)</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Conclusion</h2>
+					<ul>
+						<li class="fragment" data-fragment-index="1">Linear regression is a fundamental statistical technique</li>
+						<li class="fragment" data-fragment-index="2">Useful for understanding relationships between variables</li>
+						<li class="fragment" data-fragment-index="3">Easy to implement with NumPy or scikit-learn</li>
+						<li class="fragment" data-fragment-index="4">Important to understand assumptions and limitations</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Thank You for Attending!</h2>
+					<img src="qr-code.png" alt="QR Code" style="width: 200px; height: 200px;">
+				</section>
+>>>>>>> Stashed changes
 			</div>
 		</div>
 
@@ -25,6 +246,10 @@
 		<script src="plugin/notes/notes.js"></script>
 		<script src="plugin/markdown/markdown.js"></script>
 		<script src="plugin/highlight/highlight.js"></script>
+<<<<<<< Updated upstream
+=======
+		<script src="plugin/math/math.js"></script>
+>>>>>>> Stashed changes
 		<script>
 			// More info about initialization & config:
 			// - https://revealjs.com/initialization/
@@ -33,8 +258,16 @@
 				hash: true,
 
 				// Learn about plugins: https://revealjs.com/plugins/
+<<<<<<< Updated upstream
 				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
 			});
 		</script>
 	</body>
 </html>
+=======
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, RevealMath.KaTeX ]
+			});
+		</script>
+	</body>
+</html>
+>>>>>>> Stashed changes
