@@ -1,0 +1,349 @@
+---
+title: "Understanding Clustering Analysis"
+author: 
+  - "Pranav Karra"
+format:
+  revealjs:
+    theme: serif
+    transition: slide
+    slide-number: true
+    code-fold: false
+    highlight-style: github
+    code-copy: true
+    code-line-numbers: true
+    fig-width: 10
+    fig-height: 7
+    title-slide-attributes:
+      data-background-iframe: "https://emilhvitfeldt.github.io/quarto-iframe-examples/center-of-universe/index.html"
+      data-background-color: "black"
+      data-title-color: "white"
+      data-subtitle-color: "white"
+      data-author-color: "white"
+      data-title-size: "50px"
+      data-subtitle-size: "30px"
+      data-author-size: "20px" # Adjusted size for author
+    css: custom.css
+    footer: "Penn State ACM MLPSU"
+execute:
+  echo: true
+  warning: false
+---
+## Clustering Overview
+
+- Unsupervised learning
+- Requires data, but no labels
+- Detect patterns e.g. in
+  - Group emails or search results
+  - Customer shopping patterns
+  - Regions of images
+- Useful when don't know what you're looking for
+- But: can get gibberish
+
+## Basic Concept
+::: {.columns}
+::: {.column width="50%"}
+- Basic idea: group together similar instances
+- Example: 2D point patterns
+:::
+::: {.column width="50%"}
+![](1.png)
+![](2.png)
+![](3.png)
+:::
+:::
+
+## Similarity Measures
+
+- What could similar mean?
+  - One option: small Euclidean distance (squared)
+  - Clustering results are crucially dependent on the measure of similarity (or distance) between "points" to be clustered
+
+$$dist(\vec{x}, \vec{y}) = ||\vec{x} - \vec{y}||^2_2$$
+
+## Clustering Algorithms
+
+Two main categories:
+
+::: {.columns}
+::: {.column width="60%"}
+1. Hierarchical algorithms
+   - Bottom-up: agglomerative
+   - Top-down: divisive
+   
+2. Partitional algorithms (flat)
+   - K-means
+   - Mixture of Gaussians
+   - Spectral Clustering
+:::
+::: {.column width="40%"}
+![](hier.png)
+![](flat.png)
+:::
+:::
+
+## Clustering Examples: Image Segmentation {.smaller}
+
+::: {.columns}
+::: {.column width="50%"}
+Goal: Break up the image into meaningful or perceptually similar regions
+:::
+::: {.column width="50%"}
+![](image_segmentation_example.png)
+:::
+:::
+
+## K-Means Algorithm
+
+An iterative clustering algorithm:
+1. Initialize: Pick K random points as cluster centers
+2. Alternate:
+   - Assign data points to closest cluster center
+   - Change the cluster center to the average of its assigned points
+3. Stop when no points assignments change
+
+## K-Means Visualization
+
+![](kmeans.gif){width=60% fig-align="center"}
+
+## K-Means Example: Step 1
+
+::: {.columns}
+::: {.column width="50%"}
+Initial random centers (K=2)
+:::
+::: {.column width="50%"}
+![](kEx.png)
+:::
+:::
+
+## K-Means Example: Step 2
+
+::: {.columns}
+::: {.column width="50%"}
+Assign points to nearest center
+:::
+::: {.column width="50%"}
+![](kEx2.png)
+:::
+:::
+
+## K-Means Example: Step 3
+
+::: {.columns}
+::: {.column width="50%"}
+Repeat until convergence
+:::
+::: {.column width="50%"}
+![](kEx4.png)
+:::
+:::
+
+## K-Means Example: Step 4
+
+::: {.columns}
+::: {.column width="50%"}
+Change the cluster center to the average of the assigned points
+:::
+::: {.column width="50%"}
+![](kEx3.png)
+:::
+:::
+
+## Properties of K-means Algorithm
+
+- Guaranteed to converge in a finite number of iterations
+- Running time per iteration:
+  1. Assign data points to closest cluster center: O(KN) time
+  2. Change the cluster center to average of assigned points: O(N)
+
+## K-Means Getting Stuck 
+![](stuck.png)
+
+## Example of cases where K-Means gets stuck
+![](stuck2.png)
+
+## How we can handle such cases
+![](stuck3.png)
+
+## Workshop Part 1: K-Means from Scratch {.smaller}
+
+Let's implement K-means clustering step by step!
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+```
+
+Create clustered data
+
+```python
+np.random.seed(42)
+```
+
+Generate 3 clusters
+
+```python
+cluster1 = np.random.normal(loc=[2, 2], scale=0.5, size=(100, 2))
+cluster2 = np.random.normal(loc=[8, 3], scale=0.5, size=(100, 2))
+cluster3 = np.random.normal(loc=[5, 7], scale=0.5, size=(100, 2))
+```
+
+Combine all data
+
+```python
+data = np.vstack([cluster1, cluster2, cluster3])
+```
+
+```python
+plt.scatter(data[:, 0], data[:, 1], alpha=0.5)
+plt.title("Generated Data Points")
+plt.show()
+```
+
+## Step 1: Initialize Centers {.smaller}
+
+```python
+Initialize random centers
+
+```python
+k = 3
+centers = data[np.random.choice(len(data), k, replace=False)]
+```
+
+Plot data and centers
+
+```python
+plt.scatter(data[:, 0], data[:, 1], alpha=0.5, label='Data')
+plt.scatter(centers[:, 0], centers[:, 1], c='red',
+marker='x', s=200, label='Centers')
+plt.legend()
+plt.title("Initial Random Centers")
+plt.show()
+```
+
+## Step 2: Assign Points {.smaller}
+
+```python
+def assign_clusters(data, centers):
+    # Calculate distances to centers
+    distances = np.sqrt(((data - centers[:, np.newaxis])2).sum(axis=2))
+    # Return index of closest center for each point
+    return np.argmin(distances, axis=0)
+```
+
+Get cluster assignments
+
+```python
+labels = assign_clusters(data, centers)
+```
+
+Plot
+
+```python
+plt.scatter(data[:, 0], data[:, 1], c=labels, cmap='viridis', alpha=0.5)
+plt.scatter(centers[:, 0], centers[:, 1], c='red',
+marker='x', s=200, label='Centers')
+plt.legend()
+plt.title("Points Assigned to Nearest Center")
+plt.show()
+```
+
+## Step 3: Update Centers {.smaller}
+
+```python
+def update_centers(data, labels, k):
+    new_centers = np.array([data[labels == i].mean(axis=0) for i in range(k)])
+    return new_centers
+```
+
+Update centers
+
+```python
+new_centers = update_centers(data, labels, k)
+```
+
+Plot
+
+```python
+plt.scatter(data[:, 0], data[:, 1], c=labels, cmap='viridis', alpha=0.5)
+plt.scatter(new_centers[:, 0], new_centers[:, 1], c='red',
+marker='x', s=200, label='New Centers')
+plt.legend()
+plt.title("Updated Centers")
+plt.show()
+```
+
+## Complete K-Means Function {.smaller}
+
+```python
+def kmeans(data, k, max_iters=100):
+    # Initialize centers
+    centers = data[np.random.choice(len(data), k, replace=False)]
+    for in range(max_iters):
+        old_centers = centers.copy()
+        # Assign clusters
+        labels = assign_clusters(data, centers)
+        # Update centers
+        centers = update_centers(data, labels, k)
+        # Check convergence
+        if np.all(old_centers == centers):
+            break
+    return centers, labels
+```
+
+Run K-means
+
+```python
+final_centers, final_labels = kmeans(data, k=3)
+```
+
+Plot final results
+
+```python
+plt.scatter(data[:, 0], data[:, 1], c=final_labels,
+cmap='viridis', alpha=0.5)
+plt.scatter(final_centers[:, 0], final_centers[:, 1],
+c='red', marker='x', s=200, label='Final Centers')
+plt.legend()
+plt.title("Final Clustering Result")
+plt.show()
+```
+
+## Workshop Part 2: Image Segmentation {.smaller}
+
+Let's segment an image using K-means!
+
+```python
+from PIL import Image
+import numpy as np
+```
+
+Load and prepare image
+
+```python
+img = Image.open('sample_image.jpg')
+img_array = np.array(img)
+pixels = img_array.reshape(-1, 3)
+```
+
+Apply K-means with different K values
+
+```python
+k_values = [2, 4, 8]
+fig, axes = plt.subplots(1, len(k_values), figsize=(15, 5))
+for i, k in enumerate(k_values):
+    # Cluster pixels
+    centers, labels = kmeans(pixels, k=k)
+    # Replace each pixel with its center color
+    segmented_array = centers[labels].reshape(img_array.shape)
+    # Plot
+    axes[i].imshow(segmented_array.astype(np.uint8))
+    axes[i].set_title(f'K = {k}')
+    axes[i].axis('off')
+plt.suptitle('Image Segmentation with Different K Values')
+plt.show()
+```
+
+
+
+
