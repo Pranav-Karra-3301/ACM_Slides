@@ -4,118 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ACM MLPSU Workshops by Pranav Karra</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-            line-height: 1.6;
-            color: #37352f;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            background-color: #f7f6f3;
-        }
-        .container {
-            background-color: #ffffff;
-            border-radius: 8px;
-            padding: 40px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-        h1, h2 {
-            margin-top: 1.5em;
-            margin-bottom: 0.5em;
-            font-weight: 600;
-        }
-        h1 {
-            font-size: 2.5em;
-        }
-        h2 {
-            font-size: 1.8em;
-            border-bottom: 1px solid #e1e1e1;
-            padding-bottom: 0.3em;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1em;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #e1e1e1;
-        }
-        th {
-            font-weight: 600;
-            color: #6b7280;
-        }
-        a {
-            color: #0b6e99;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 2em;
-        }
-        .header img {
-            width: 200px;
-            margin-right: 20px;
-        }
-        @media (max-width: 600px) {
-            body {
-                padding: 20px 10px;
-            }
-            .container {
-                padding: 20px;
-            }
-            table, th, td {
-                font-size: 14px;
-            }
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .header img {
-                margin-bottom: 1em;
-            }
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <img src="psuXacm.png" alt="ACM x PSU Logo">
+    <nav class="top-nav">
+        <div class="container">
             <h1>ACM MLPSU Workshop Materials</h1>
         </div>
-        <p>Welcome! This site contains slides and additional information for each workshop.</p>
-        <p>Instructor: Pranav Karra - <a href="https://pranavkarra.me" target="_blank">Visit my personal site</a></p>
-        
-        <h2>All Slides</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Title</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>October 3rd, 2024</td>
-                    <td><a href="slides/Oct_3/index.html">Creating A Financial Dashboard using Streamlit</a></td>
-                </tr>
-                <tr>
-                    <td>October 10th, 2024</td>
-                    <td><a href="slides/Oct_10/index.html">Linear Regression: Concept, Mathematics, and Implementation</a></td>
-                </tr>
-                <tr>
-                    <td>October 31st, 2024</td>
-                    <td><a href="slides/Oct_31/index.html">Understanding Clustering Analysis</a></td>
-                </tr>
-                <!-- Add more lectures here as they become available -->
-            </tbody>
-        </table>
+    </nav>
+
+    <div class="container">
+        <div class="intro">
+            <h2>Welcome to the Workshop Series</h2>
+            <p>Access comprehensive materials and slides for each workshop session. These workshops are designed to help you master machine learning concepts and practical implementations.</p>
+            <p>Instructor: Pranav Karra • <a href="https://pranavkarra.me" target="_blank">Personal Website</a></p>
+        </div>
+
+        <div class="workshops">
+            <div class="workshop-card">
+                <div class="workshop-date">
+                    <i class="far fa-calendar"></i>
+                    October 3rd, 2024
+                </div>
+                <h3 class="workshop-title">Creating A Financial Dashboard using Streamlit</h3>
+                <p class="workshop-description">Learn how to build an interactive financial dashboard using Python and Streamlit. We'll cover data visualization, real-time updates, and deployment.</p>
+                <a href="slides/Oct_3/index.html" class="view-slides-btn">
+                    <i class="fas fa-presentation"></i>
+                    View Slides
+                </a>
+            </div>
+
+            <div class="workshop-card">
+                <div class="workshop-date">
+                    <i class="far fa-calendar"></i>
+                    October 10th, 2024
+                </div>
+                <h3 class="workshop-title">Linear Regression: Concept, Mathematics, and Implementation</h3>
+                <p class="workshop-description">Deep dive into linear regression, covering theoretical foundations, mathematical concepts, and hands-on implementation in Python.</p>
+                <a href="slides/Oct_10/index.html" class="view-slides-btn">
+                    <i class="fas fa-presentation"></i>
+                    View Slides
+                </a>
+            </div>
+
+            <div class="workshop-card">
+                <div class="workshop-date">
+                    <i class="far fa-calendar"></i>
+                    October 31st, 2024
+                </div>
+                <h3 class="workshop-title">Understanding Clustering Analysis</h3>
+                <p class="workshop-description">Explore various clustering algorithms, their applications, and implementation techniques for unsupervised learning tasks.</p>
+                <a href="slides/Oct_31/index.html" class="view-slides-btn">
+                    <i class="fas fa-presentation"></i>
+                    View Slides
+                </a>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2024 ACM MLPSU • Machine Learning Workshop Series</p>
+        </footer>
     </div>
 </body>
 </html>
