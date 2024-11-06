@@ -39,6 +39,17 @@ execute:
 - Useful when don't know what you're looking for
 - But: can get gibberish
 
+## Workshop Overview
+
+This presentation will teach you the basics of clustering, including:
+
+- Understanding the concept of clustering
+- Learning about the K-means algorithm
+- Implementing K-means in practical scenarios
+- Exploring image segmentation using K-means
+
+
+
 ## Basic Concept
 ::: {.columns}
 ::: {.column width="50%"}
@@ -95,6 +106,7 @@ Goal: Break up the image into meaningful or perceptually similar regions
 ## K-Means Algorithm
 
 An iterative clustering algorithm:
+
 1. Initialize: Pick K random points as cluster centers
 2. Alternate:
    - Assign data points to closest cluster center
@@ -165,185 +177,194 @@ Change the cluster center to the average of the assigned points
 ## How we can handle such cases
 ![](stuck3.png)
 
-## Workshop Part 1: K-Means from Scratch {.smaller}
 
+## Workshop Part 1: K-Means from Scratch {.smaller}
 Let's implement K-means clustering step by step!
 
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
-```
+from IPython import display
+import time
 
-Create clustered data
-
-```python
+# For reproducibility
 np.random.seed(42)
 ```
 
-Generate 3 clusters
-
+## Generate Sample Data {.smaller}
 ```python
+# Generate 3 clusters
 cluster1 = np.random.normal(loc=[2, 2], scale=0.5, size=(100, 2))
 cluster2 = np.random.normal(loc=[8, 3], scale=0.5, size=(100, 2))
 cluster3 = np.random.normal(loc=[5, 7], scale=0.5, size=(100, 2))
-```
 
-Combine all data
-
-```python
+# Combine all data
 data = np.vstack([cluster1, cluster2, cluster3])
-```
 
-```python
-plt.scatter(data[:, 0], data[:, 1], alpha=0.5)
-plt.title("Generated Data Points")
-plt.show()
-```
-
-## Step 1: Initialize Centers {.smaller}
-
-```python
-Initialize random centers
-
-```python
+# Number of clusters
 k = 3
+
+# Initialize centers randomly
 centers = data[np.random.choice(len(data), k, replace=False)]
 ```
 
-Plot data and centers
 
-```python
-plt.scatter(data[:, 0], data[:, 1], alpha=0.5, label='Data')
-plt.scatter(centers[:, 0], centers[:, 1], c='red',
-marker='x', s=200, label='Centers')
-plt.legend()
-plt.title("Initial Random Centers")
-plt.show()
-```
-
-## Step 2: Assign Points {.smaller}
-
+## Function 1: Assign Clusters {.smaller}
 ```python
 def assign_clusters(data, centers):
-    # Calculate distances to centers
-    distances = np.sqrt(((data - centers[:, np.newaxis])2).sum(axis=2))
-    # Return index of closest center for each point
+    """
+    Assign each data point to nearest center
+    
+    Args:
+        data: Array of data points (n_samples, n_features)
+        centers: Array of cluster centers (k, n_features)
+    Returns:
+        Array of cluster assignments for each point
+    """
+    distances = np.sqrt(((data - centers[:, np.newaxis]) ** 2).sum(axis=2))
     return np.argmin(distances, axis=0)
 ```
 
-Get cluster assignments
-
-```python
-labels = assign_clusters(data, centers)
-```
-
-Plot
-
-```python
-plt.scatter(data[:, 0], data[:, 1], c=labels, cmap='viridis', alpha=0.5)
-plt.scatter(centers[:, 0], centers[:, 1], c='red',
-marker='x', s=200, label='Centers')
-plt.legend()
-plt.title("Points Assigned to Nearest Center")
-plt.show()
-```
-
-## Step 3: Update Centers {.smaller}
+## Function 2: Update Centers {.smaller}
 
 ```python
 def update_centers(data, labels, k):
-    new_centers = np.array([data[labels == i].mean(axis=0) for i in range(k)])
-    return new_centers
+    """
+    Update cluster centers to mean of assigned points
+    
+    Args:
+        data: Array of data points
+        labels: Cluster assignments for each point
+        k: Number of clusters
+    Returns:
+        Array of new cluster centers
+    """
+    return np.array([data[labels == i].mean(axis=0) for i in range(k)])
 ```
 
-Update centers
-
+## Function 3: K-means Visualization{.smaller}
+ Part 1 
 ```python
-new_centers = update_centers(data, labels, k)
-```
-
-Plot
-
-```python
-plt.scatter(data[:, 0], data[:, 1], c=labels, cmap='viridis', alpha=0.5)
-plt.scatter(new_centers[:, 0], new_centers[:, 1], c='red',
-marker='x', s=200, label='New Centers')
-plt.legend()
-plt.title("Updated Centers")
-plt.show()
-```
-
-## Complete K-Means Function {.smaller}
-
-```python
-def kmeans(data, k, max_iters=100):
-    # Initialize centers
+def kmeans_visualize(data, k, max_iters=100):
+    """
+    Run K-means clustering with visualization
+    
+    Args:
+        data: Input data points
+        k: Number of clusters
+        max_iters: Maximum iterations
+    """
+    # Initialize centers randomly
     centers = data[np.random.choice(len(data), k, replace=False)]
-    for in range(max_iters):
-        old_centers = centers.copy()
+    
+    plt.figure(figsize=(10, 6))
+```
+
+## Function 3: K-means Visualization {.smaller}
+ Part 2
+```python
+    for i in range(max_iters):
         # Assign clusters
         labels = assign_clusters(data, centers)
+        
+        plt.clf()
+        
+        # Plot data points with cluster colors
+        for j in range(k):
+            cluster_points = data[labels == j]
+            plt.scatter(cluster_points[:, 0], cluster_points[:, 1], 
+                       label=f'Cluster {j + 1}')
+```
+## Function 3: K-means Visualization {.smaller}
+ Part 3
+```python
         # Update centers
-        centers = update_centers(data, labels, k)
+        new_centers = update_centers(data, labels, k)
+        
+        # Plot old and new centers
+        plt.scatter(centers[:, 0], centers[:, 1], color='black', 
+                   marker='x', s=100, label='Old Centers')
+        plt.scatter(new_centers[:, 0], new_centers[:, 1], color='red',
+                   marker='x', s=100, label='New Centers')
+```
+
+## Function 3: K-means Visualization {.smaller}
+ Part 4
+```python
         # Check convergence
-        if np.all(old_centers == centers):
+        if np.all(new_centers == centers):
             break
-    return centers, labels
+            
+        centers = new_centers
+        
+        plt.title(f'Iteration {i + 1}')
+        plt.legend(loc='upper left')
+        
+        display.clear_output(wait=True)
+        display.display(plt.gcf())
+        time.sleep(0.5)
+    
+    plt.show()
 ```
 
-Run K-means
+## Running K-means {.smaller}
 
 ```python
-final_centers, final_labels = kmeans(data, k=3)
-```
-
-Plot final results
-
-```python
-plt.scatter(data[:, 0], data[:, 1], c=final_labels,
-cmap='viridis', alpha=0.5)
-plt.scatter(final_centers[:, 0], final_centers[:, 1],
-c='red', marker='x', s=200, label='Final Centers')
-plt.legend()
-plt.title("Final Clustering Result")
-plt.show()
+# Run K-means visualization
+kmeans_visualize(data, k)
 ```
 
 ## Workshop Part 2: Image Segmentation {.smaller}
 
-Let's segment an image using K-means!
+Let's segment an image using K-means
 
 ```python
-from PIL import Image
 import numpy as np
-```
+import matplotlib.pyplot as plt
+import cv2
 
-Load and prepare image
+# Read in the image
+image = cv2.imread('image.png')
+
+# Change color to RGB (from BGR)
+image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+ 
+plt.imshow(image)
+```
+## Pre Processing the Image
 
 ```python
-img = Image.open('sample_image.jpg')
-img_array = np.array(img)
-pixels = img_array.reshape(-1, 3)
+# Reshaping the image into a 2D array of pixels and 3 color values (RGB)
+pixel_vals = image.reshape((-1,3))
+ 
+# Convert to float type
+pixel_vals = np.float32(pixel_vals)
+```
+## Setting Stop Conditions for the Algorithm
+This line sets the stopping criteria: either 100 iterations or 85% accuracy.
+```python
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.85)
 ```
 
-Apply K-means with different K values
+## Perform K-Means
+Random Centers are initally chosen.
+```python
+k = 3
+retval, labels, centers = cv2.kmeans(pixel_vals, k, None, criteria, 10, cv2 KMEANS_RANDOM_CENTERS)
+```
+
+## Convert Data into 8-Bit and then into the original image dimension
 
 ```python
-k_values = [2, 4, 8]
-fig, axes = plt.subplots(1, len(k_values), figsize=(15, 5))
-for i, k in enumerate(k_values):
-    # Cluster pixels
-    centers, labels = kmeans(pixels, k=k)
-    # Replace each pixel with its center color
-    segmented_array = centers[labels].reshape(img_array.shape)
-    # Plot
-    axes[i].imshow(segmented_array.astype(np.uint8))
-    axes[i].set_title(f'K = {k}')
-    axes[i].axis('off')
-plt.suptitle('Image Segmentation with Different K Values')
-plt.show()
+# convert data into 8-bit values
+centers = np.uint8(centers)
+segmented_data = centers[labels.flatten()]
+ 
+# reshape data into the original image dimensions
+segmented_image = segmented_data.reshape((image.shape))
+
+plt.imshow(segmented_image)
 ```
 
-
-
+## Thank you
 

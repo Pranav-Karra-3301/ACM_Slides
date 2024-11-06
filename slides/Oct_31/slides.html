@@ -417,6 +417,16 @@ Pranav Karra
 <li>But: can get gibberish</li>
 </ul>
 </section>
+<section id="workshop-overview" class="slide level2">
+<h2>Workshop Overview</h2>
+<p>This presentation will teach you the basics of clustering, including:</p>
+<ul>
+<li>Understanding the concept of clustering</li>
+<li>Learning about the K-means algorithm</li>
+<li>Implementing K-means in practical scenarios</li>
+<li>Exploring image segmentation using K-means</li>
+</ul>
+</section>
 <section id="basic-concept" class="slide level2">
 <h2>Basic Concept</h2>
 <div class="columns">
@@ -473,7 +483,16 @@ Pranav Karra
 </section>
 <section id="k-means-algorithm" class="slide level2">
 <h2>K-Means Algorithm</h2>
-<p>An iterative clustering algorithm: 1. Initialize: Pick K random points as cluster centers 2. Alternate: - Assign data points to closest cluster center - Change the cluster center to the average of its assigned points 3. Stop when no points assignments change</p>
+<p>An iterative clustering algorithm:</p>
+<ol type="1">
+<li>Initialize: Pick K random points as cluster centers</li>
+<li>Alternate:
+<ul>
+<li>Assign data points to closest cluster center</li>
+<li>Change the cluster center to the average of its assigned points</li>
+</ul></li>
+<li>Stop when no points assignments change</li>
+</ol>
 </section>
 <section id="k-means-visualization" class="slide level2">
 <h2>K-Means Visualization</h2>
@@ -542,115 +561,173 @@ Pranav Karra
 <h2>Workshop Part 1: K-Means from Scratch</h2>
 <p>Let’s implement K-means clustering step by step!</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href=""></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-2"><a href=""></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Create clustered data</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href=""></a>np.random.seed(<span class="dv">42</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Generate 3 clusters</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href=""></a>cluster1 <span class="op">=</span> np.random.normal(loc<span class="op">=</span>[<span class="dv">2</span>, <span class="dv">2</span>], scale<span class="op">=</span><span class="fl">0.5</span>, size<span class="op">=</span>(<span class="dv">100</span>, <span class="dv">2</span>))</span>
-<span id="cb3-2"><a href=""></a>cluster2 <span class="op">=</span> np.random.normal(loc<span class="op">=</span>[<span class="dv">8</span>, <span class="dv">3</span>], scale<span class="op">=</span><span class="fl">0.5</span>, size<span class="op">=</span>(<span class="dv">100</span>, <span class="dv">2</span>))</span>
-<span id="cb3-3"><a href=""></a>cluster3 <span class="op">=</span> np.random.normal(loc<span class="op">=</span>[<span class="dv">5</span>, <span class="dv">7</span>], scale<span class="op">=</span><span class="fl">0.5</span>, size<span class="op">=</span>(<span class="dv">100</span>, <span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Combine all data</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a>data <span class="op">=</span> np.vstack([cluster1, cluster2, cluster3])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href=""></a>plt.scatter(data[:, <span class="dv">0</span>], data[:, <span class="dv">1</span>], alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
-<span id="cb5-2"><a href=""></a>plt.title(<span class="st">"Generated Data Points"</span>)</span>
-<span id="cb5-3"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href=""></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href=""></a><span class="im">from</span> IPython <span class="im">import</span> display</span>
+<span id="cb1-4"><a href=""></a><span class="im">import</span> time</span>
+<span id="cb1-5"><a href=""></a></span>
+<span id="cb1-6"><a href=""></a><span class="co"># For reproducibility</span></span>
+<span id="cb1-7"><a href=""></a>np.random.seed(<span class="dv">42</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="step-1-initialize-centers" class="slide level2 smaller">
-<h2>Step 1: Initialize Centers</h2>
-<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href=""></a>Initialize random centers</span>
-<span id="cb6-2"><a href=""></a></span>
-<span id="cb6-3"><a href=""></a>```python</span>
-<span id="cb6-4"><a href=""></a>k <span class="op">=</span> <span class="dv">3</span></span>
-<span id="cb6-5"><a href=""></a>centers <span class="op">=</span> data[np.random.choice(<span class="bu">len</span>(data), k, replace<span class="op">=</span><span class="va">False</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Plot data and centers</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href=""></a>plt.scatter(data[:, <span class="dv">0</span>], data[:, <span class="dv">1</span>], alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">'Data'</span>)</span>
-<span id="cb7-2"><a href=""></a>plt.scatter(centers[:, <span class="dv">0</span>], centers[:, <span class="dv">1</span>], c<span class="op">=</span><span class="st">'red'</span>,</span>
-<span id="cb7-3"><a href=""></a>marker<span class="op">=</span><span class="st">'x'</span>, s<span class="op">=</span><span class="dv">200</span>, label<span class="op">=</span><span class="st">'Centers'</span>)</span>
-<span id="cb7-4"><a href=""></a>plt.legend()</span>
-<span id="cb7-5"><a href=""></a>plt.title(<span class="st">"Initial Random Centers"</span>)</span>
-<span id="cb7-6"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="generate-sample-data" class="slide level2 smaller">
+<h2>Generate Sample Data</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href=""></a><span class="co"># Generate 3 clusters</span></span>
+<span id="cb2-2"><a href=""></a>cluster1 <span class="op">=</span> np.random.normal(loc<span class="op">=</span>[<span class="dv">2</span>, <span class="dv">2</span>], scale<span class="op">=</span><span class="fl">0.5</span>, size<span class="op">=</span>(<span class="dv">100</span>, <span class="dv">2</span>))</span>
+<span id="cb2-3"><a href=""></a>cluster2 <span class="op">=</span> np.random.normal(loc<span class="op">=</span>[<span class="dv">8</span>, <span class="dv">3</span>], scale<span class="op">=</span><span class="fl">0.5</span>, size<span class="op">=</span>(<span class="dv">100</span>, <span class="dv">2</span>))</span>
+<span id="cb2-4"><a href=""></a>cluster3 <span class="op">=</span> np.random.normal(loc<span class="op">=</span>[<span class="dv">5</span>, <span class="dv">7</span>], scale<span class="op">=</span><span class="fl">0.5</span>, size<span class="op">=</span>(<span class="dv">100</span>, <span class="dv">2</span>))</span>
+<span id="cb2-5"><a href=""></a></span>
+<span id="cb2-6"><a href=""></a><span class="co"># Combine all data</span></span>
+<span id="cb2-7"><a href=""></a>data <span class="op">=</span> np.vstack([cluster1, cluster2, cluster3])</span>
+<span id="cb2-8"><a href=""></a></span>
+<span id="cb2-9"><a href=""></a><span class="co"># Number of clusters</span></span>
+<span id="cb2-10"><a href=""></a>k <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb2-11"><a href=""></a></span>
+<span id="cb2-12"><a href=""></a><span class="co"># Initialize centers randomly</span></span>
+<span id="cb2-13"><a href=""></a>centers <span class="op">=</span> data[np.random.choice(<span class="bu">len</span>(data), k, replace<span class="op">=</span><span class="va">False</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="step-2-assign-points" class="slide level2 smaller">
-<h2>Step 2: Assign Points</h2>
-<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href=""></a><span class="kw">def</span> assign_clusters(data, centers):</span>
-<span id="cb8-2"><a href=""></a>    <span class="co"># Calculate distances to centers</span></span>
-<span id="cb8-3"><a href=""></a>    distances <span class="op">=</span> np.sqrt(((data <span class="op">-</span> centers[:, np.newaxis])<span class="dv">2</span>).<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">2</span>))</span>
-<span id="cb8-4"><a href=""></a>    <span class="co"># Return index of closest center for each point</span></span>
-<span id="cb8-5"><a href=""></a>    <span class="cf">return</span> np.argmin(distances, axis<span class="op">=</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Get cluster assignments</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href=""></a>labels <span class="op">=</span> assign_clusters(data, centers)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Plot</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href=""></a>plt.scatter(data[:, <span class="dv">0</span>], data[:, <span class="dv">1</span>], c<span class="op">=</span>labels, cmap<span class="op">=</span><span class="st">'viridis'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
-<span id="cb10-2"><a href=""></a>plt.scatter(centers[:, <span class="dv">0</span>], centers[:, <span class="dv">1</span>], c<span class="op">=</span><span class="st">'red'</span>,</span>
-<span id="cb10-3"><a href=""></a>marker<span class="op">=</span><span class="st">'x'</span>, s<span class="op">=</span><span class="dv">200</span>, label<span class="op">=</span><span class="st">'Centers'</span>)</span>
-<span id="cb10-4"><a href=""></a>plt.legend()</span>
-<span id="cb10-5"><a href=""></a>plt.title(<span class="st">"Points Assigned to Nearest Center"</span>)</span>
-<span id="cb10-6"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="function-1-assign-clusters" class="slide level2 smaller">
+<h2>Function 1: Assign Clusters</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href=""></a><span class="kw">def</span> assign_clusters(data, centers):</span>
+<span id="cb3-2"><a href=""></a>    <span class="co">"""</span></span>
+<span id="cb3-3"><a href=""></a><span class="co">    Assign each data point to nearest center</span></span>
+<span id="cb3-4"><a href=""></a><span class="co">    </span></span>
+<span id="cb3-5"><a href=""></a><span class="co">    Args:</span></span>
+<span id="cb3-6"><a href=""></a><span class="co">        data: Array of data points (n_samples, n_features)</span></span>
+<span id="cb3-7"><a href=""></a><span class="co">        centers: Array of cluster centers (k, n_features)</span></span>
+<span id="cb3-8"><a href=""></a><span class="co">    Returns:</span></span>
+<span id="cb3-9"><a href=""></a><span class="co">        Array of cluster assignments for each point</span></span>
+<span id="cb3-10"><a href=""></a><span class="co">    """</span></span>
+<span id="cb3-11"><a href=""></a>    distances <span class="op">=</span> np.sqrt(((data <span class="op">-</span> centers[:, np.newaxis]) <span class="op">**</span> <span class="dv">2</span>).<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">2</span>))</span>
+<span id="cb3-12"><a href=""></a>    <span class="cf">return</span> np.argmin(distances, axis<span class="op">=</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="step-3-update-centers" class="slide level2 smaller">
-<h2>Step 3: Update Centers</h2>
-<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href=""></a><span class="kw">def</span> update_centers(data, labels, k):</span>
-<span id="cb11-2"><a href=""></a>    new_centers <span class="op">=</span> np.array([data[labels <span class="op">==</span> i].mean(axis<span class="op">=</span><span class="dv">0</span>) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(k)])</span>
-<span id="cb11-3"><a href=""></a>    <span class="cf">return</span> new_centers</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Update centers</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href=""></a>new_centers <span class="op">=</span> update_centers(data, labels, k)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Plot</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href=""></a>plt.scatter(data[:, <span class="dv">0</span>], data[:, <span class="dv">1</span>], c<span class="op">=</span>labels, cmap<span class="op">=</span><span class="st">'viridis'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
-<span id="cb13-2"><a href=""></a>plt.scatter(new_centers[:, <span class="dv">0</span>], new_centers[:, <span class="dv">1</span>], c<span class="op">=</span><span class="st">'red'</span>,</span>
-<span id="cb13-3"><a href=""></a>marker<span class="op">=</span><span class="st">'x'</span>, s<span class="op">=</span><span class="dv">200</span>, label<span class="op">=</span><span class="st">'New Centers'</span>)</span>
-<span id="cb13-4"><a href=""></a>plt.legend()</span>
-<span id="cb13-5"><a href=""></a>plt.title(<span class="st">"Updated Centers"</span>)</span>
-<span id="cb13-6"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="function-2-update-centers" class="slide level2 smaller">
+<h2>Function 2: Update Centers</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a><span class="kw">def</span> update_centers(data, labels, k):</span>
+<span id="cb4-2"><a href=""></a>    <span class="co">"""</span></span>
+<span id="cb4-3"><a href=""></a><span class="co">    Update cluster centers to mean of assigned points</span></span>
+<span id="cb4-4"><a href=""></a><span class="co">    </span></span>
+<span id="cb4-5"><a href=""></a><span class="co">    Args:</span></span>
+<span id="cb4-6"><a href=""></a><span class="co">        data: Array of data points</span></span>
+<span id="cb4-7"><a href=""></a><span class="co">        labels: Cluster assignments for each point</span></span>
+<span id="cb4-8"><a href=""></a><span class="co">        k: Number of clusters</span></span>
+<span id="cb4-9"><a href=""></a><span class="co">    Returns:</span></span>
+<span id="cb4-10"><a href=""></a><span class="co">        Array of new cluster centers</span></span>
+<span id="cb4-11"><a href=""></a><span class="co">    """</span></span>
+<span id="cb4-12"><a href=""></a>    <span class="cf">return</span> np.array([data[labels <span class="op">==</span> i].mean(axis<span class="op">=</span><span class="dv">0</span>) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(k)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="complete-k-means-function" class="slide level2 smaller">
-<h2>Complete K-Means Function</h2>
-<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href=""></a><span class="kw">def</span> kmeans(data, k, max_iters<span class="op">=</span><span class="dv">100</span>):</span>
-<span id="cb14-2"><a href=""></a>    <span class="co"># Initialize centers</span></span>
-<span id="cb14-3"><a href=""></a>    centers <span class="op">=</span> data[np.random.choice(<span class="bu">len</span>(data), k, replace<span class="op">=</span><span class="va">False</span>)]</span>
-<span id="cb14-4"><a href=""></a>    <span class="cf">for</span> <span class="kw">in</span> <span class="bu">range</span>(max_iters):</span>
-<span id="cb14-5"><a href=""></a>        old_centers <span class="op">=</span> centers.copy()</span>
-<span id="cb14-6"><a href=""></a>        <span class="co"># Assign clusters</span></span>
-<span id="cb14-7"><a href=""></a>        labels <span class="op">=</span> assign_clusters(data, centers)</span>
-<span id="cb14-8"><a href=""></a>        <span class="co"># Update centers</span></span>
-<span id="cb14-9"><a href=""></a>        centers <span class="op">=</span> update_centers(data, labels, k)</span>
-<span id="cb14-10"><a href=""></a>        <span class="co"># Check convergence</span></span>
-<span id="cb14-11"><a href=""></a>        <span class="cf">if</span> np.<span class="bu">all</span>(old_centers <span class="op">==</span> centers):</span>
-<span id="cb14-12"><a href=""></a>            <span class="cf">break</span></span>
-<span id="cb14-13"><a href=""></a>    <span class="cf">return</span> centers, labels</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Run K-means</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href=""></a>final_centers, final_labels <span class="op">=</span> kmeans(data, k<span class="op">=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Plot final results</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href=""></a>plt.scatter(data[:, <span class="dv">0</span>], data[:, <span class="dv">1</span>], c<span class="op">=</span>final_labels,</span>
-<span id="cb16-2"><a href=""></a>cmap<span class="op">=</span><span class="st">'viridis'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
-<span id="cb16-3"><a href=""></a>plt.scatter(final_centers[:, <span class="dv">0</span>], final_centers[:, <span class="dv">1</span>],</span>
-<span id="cb16-4"><a href=""></a>c<span class="op">=</span><span class="st">'red'</span>, marker<span class="op">=</span><span class="st">'x'</span>, s<span class="op">=</span><span class="dv">200</span>, label<span class="op">=</span><span class="st">'Final Centers'</span>)</span>
-<span id="cb16-5"><a href=""></a>plt.legend()</span>
-<span id="cb16-6"><a href=""></a>plt.title(<span class="st">"Final Clustering Result"</span>)</span>
-<span id="cb16-7"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="function-3-k-means-visualization" class="slide level2 smaller">
+<h2>Function 3: K-means Visualization</h2>
+<p>Part 1</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href=""></a><span class="kw">def</span> kmeans_visualize(data, k, max_iters<span class="op">=</span><span class="dv">100</span>):</span>
+<span id="cb5-2"><a href=""></a>    <span class="co">"""</span></span>
+<span id="cb5-3"><a href=""></a><span class="co">    Run K-means clustering with visualization</span></span>
+<span id="cb5-4"><a href=""></a><span class="co">    </span></span>
+<span id="cb5-5"><a href=""></a><span class="co">    Args:</span></span>
+<span id="cb5-6"><a href=""></a><span class="co">        data: Input data points</span></span>
+<span id="cb5-7"><a href=""></a><span class="co">        k: Number of clusters</span></span>
+<span id="cb5-8"><a href=""></a><span class="co">        max_iters: Maximum iterations</span></span>
+<span id="cb5-9"><a href=""></a><span class="co">    """</span></span>
+<span id="cb5-10"><a href=""></a>    <span class="co"># Initialize centers randomly</span></span>
+<span id="cb5-11"><a href=""></a>    centers <span class="op">=</span> data[np.random.choice(<span class="bu">len</span>(data), k, replace<span class="op">=</span><span class="va">False</span>)]</span>
+<span id="cb5-12"><a href=""></a>    </span>
+<span id="cb5-13"><a href=""></a>    plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="function-3-k-means-visualization-1" class="slide level2 smaller">
+<h2>Function 3: K-means Visualization</h2>
+<p>Part 2</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href=""></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(max_iters):</span>
+<span id="cb6-2"><a href=""></a>        <span class="co"># Assign clusters</span></span>
+<span id="cb6-3"><a href=""></a>        labels <span class="op">=</span> assign_clusters(data, centers)</span>
+<span id="cb6-4"><a href=""></a>        </span>
+<span id="cb6-5"><a href=""></a>        plt.clf()</span>
+<span id="cb6-6"><a href=""></a>        </span>
+<span id="cb6-7"><a href=""></a>        <span class="co"># Plot data points with cluster colors</span></span>
+<span id="cb6-8"><a href=""></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(k):</span>
+<span id="cb6-9"><a href=""></a>            cluster_points <span class="op">=</span> data[labels <span class="op">==</span> j]</span>
+<span id="cb6-10"><a href=""></a>            plt.scatter(cluster_points[:, <span class="dv">0</span>], cluster_points[:, <span class="dv">1</span>], </span>
+<span id="cb6-11"><a href=""></a>                       label<span class="op">=</span><span class="ss">f'Cluster </span><span class="sc">{</span>j <span class="op">+</span> <span class="dv">1</span><span class="sc">}</span><span class="ss">'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="function-3-k-means-visualization-2" class="slide level2 smaller">
+<h2>Function 3: K-means Visualization</h2>
+<p>Part 3</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href=""></a>        <span class="co"># Update centers</span></span>
+<span id="cb7-2"><a href=""></a>        new_centers <span class="op">=</span> update_centers(data, labels, k)</span>
+<span id="cb7-3"><a href=""></a>        </span>
+<span id="cb7-4"><a href=""></a>        <span class="co"># Plot old and new centers</span></span>
+<span id="cb7-5"><a href=""></a>        plt.scatter(centers[:, <span class="dv">0</span>], centers[:, <span class="dv">1</span>], color<span class="op">=</span><span class="st">'black'</span>, </span>
+<span id="cb7-6"><a href=""></a>                   marker<span class="op">=</span><span class="st">'x'</span>, s<span class="op">=</span><span class="dv">100</span>, label<span class="op">=</span><span class="st">'Old Centers'</span>)</span>
+<span id="cb7-7"><a href=""></a>        plt.scatter(new_centers[:, <span class="dv">0</span>], new_centers[:, <span class="dv">1</span>], color<span class="op">=</span><span class="st">'red'</span>,</span>
+<span id="cb7-8"><a href=""></a>                   marker<span class="op">=</span><span class="st">'x'</span>, s<span class="op">=</span><span class="dv">100</span>, label<span class="op">=</span><span class="st">'New Centers'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="function-3-k-means-visualization-3" class="slide level2 smaller">
+<h2>Function 3: K-means Visualization</h2>
+<p>Part 4</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href=""></a>        <span class="co"># Check convergence</span></span>
+<span id="cb8-2"><a href=""></a>        <span class="cf">if</span> np.<span class="bu">all</span>(new_centers <span class="op">==</span> centers):</span>
+<span id="cb8-3"><a href=""></a>            <span class="cf">break</span></span>
+<span id="cb8-4"><a href=""></a>            </span>
+<span id="cb8-5"><a href=""></a>        centers <span class="op">=</span> new_centers</span>
+<span id="cb8-6"><a href=""></a>        </span>
+<span id="cb8-7"><a href=""></a>        plt.title(<span class="ss">f'Iteration </span><span class="sc">{</span>i <span class="op">+</span> <span class="dv">1</span><span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb8-8"><a href=""></a>        plt.legend(loc<span class="op">=</span><span class="st">'upper left'</span>)</span>
+<span id="cb8-9"><a href=""></a>        </span>
+<span id="cb8-10"><a href=""></a>        display.clear_output(wait<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-11"><a href=""></a>        display.display(plt.gcf())</span>
+<span id="cb8-12"><a href=""></a>        time.sleep(<span class="fl">0.5</span>)</span>
+<span id="cb8-13"><a href=""></a>    </span>
+<span id="cb8-14"><a href=""></a>    plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="running-k-means" class="slide level2 smaller">
+<h2>Running K-means</h2>
+<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href=""></a><span class="co"># Run K-means visualization</span></span>
+<span id="cb9-2"><a href=""></a>kmeans_visualize(data, k)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="workshop-part-2-image-segmentation" class="slide level2 smaller">
 <h2>Workshop Part 2: Image Segmentation</h2>
-<p>Let’s segment an image using K-means!</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href=""></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
-<span id="cb17-2"><a href=""></a><span class="im">import</span> numpy <span class="im">as</span> np</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Load and prepare image</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href=""></a>img <span class="op">=</span> Image.<span class="bu">open</span>(<span class="st">'sample_image.jpg'</span>)</span>
-<span id="cb18-2"><a href=""></a>img_array <span class="op">=</span> np.array(img)</span>
-<span id="cb18-3"><a href=""></a>pixels <span class="op">=</span> img_array.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Apply K-means with different K values</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href=""></a>k_values <span class="op">=</span> [<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">8</span>]</span>
-<span id="cb19-2"><a href=""></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(k_values), figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">5</span>))</span>
-<span id="cb19-3"><a href=""></a><span class="cf">for</span> i, k <span class="kw">in</span> <span class="bu">enumerate</span>(k_values):</span>
-<span id="cb19-4"><a href=""></a>    <span class="co"># Cluster pixels</span></span>
-<span id="cb19-5"><a href=""></a>    centers, labels <span class="op">=</span> kmeans(pixels, k<span class="op">=</span>k)</span>
-<span id="cb19-6"><a href=""></a>    <span class="co"># Replace each pixel with its center color</span></span>
-<span id="cb19-7"><a href=""></a>    segmented_array <span class="op">=</span> centers[labels].reshape(img_array.shape)</span>
-<span id="cb19-8"><a href=""></a>    <span class="co"># Plot</span></span>
-<span id="cb19-9"><a href=""></a>    axes[i].imshow(segmented_array.astype(np.uint8))</span>
-<span id="cb19-10"><a href=""></a>    axes[i].set_title(<span class="ss">f'K = </span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">'</span>)</span>
-<span id="cb19-11"><a href=""></a>    axes[i].axis(<span class="st">'off'</span>)</span>
-<span id="cb19-12"><a href=""></a>plt.suptitle(<span class="st">'Image Segmentation with Different K Values'</span>)</span>
-<span id="cb19-13"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Let’s segment an image using K-means</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href=""></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb10-2"><a href=""></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb10-3"><a href=""></a><span class="im">import</span> cv2</span>
+<span id="cb10-4"><a href=""></a></span>
+<span id="cb10-5"><a href=""></a><span class="co"># Read in the image</span></span>
+<span id="cb10-6"><a href=""></a>image <span class="op">=</span> cv2.imread(<span class="st">'image.png'</span>)</span>
+<span id="cb10-7"><a href=""></a></span>
+<span id="cb10-8"><a href=""></a><span class="co"># Change color to RGB (from BGR)</span></span>
+<span id="cb10-9"><a href=""></a>image <span class="op">=</span> cv2.cvtColor(image, cv2.COLOR_BGR2RGB)</span>
+<span id="cb10-10"><a href=""></a> </span>
+<span id="cb10-11"><a href=""></a>plt.imshow(image)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="pre-processing-the-image" class="slide level2">
+<h2>Pre Processing the Image</h2>
+<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href=""></a><span class="co"># Reshaping the image into a 2D array of pixels and 3 color values (RGB)</span></span>
+<span id="cb11-2"><a href=""></a>pixel_vals <span class="op">=</span> image.reshape((<span class="op">-</span><span class="dv">1</span>,<span class="dv">3</span>))</span>
+<span id="cb11-3"><a href=""></a> </span>
+<span id="cb11-4"><a href=""></a><span class="co"># Convert to float type</span></span>
+<span id="cb11-5"><a href=""></a>pixel_vals <span class="op">=</span> np.float32(pixel_vals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="setting-stop-conditions-for-the-algorithm" class="slide level2">
+<h2>Setting Stop Conditions for the Algorithm</h2>
+<p>This line sets the stopping criteria: either 100 iterations or 85% accuracy.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href=""></a>criteria <span class="op">=</span> (cv2.TERM_CRITERIA_EPS <span class="op">+</span> cv2.TERM_CRITERIA_MAX_ITER, <span class="dv">100</span>, <span class="fl">0.85</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="perform-k-means" class="slide level2">
+<h2>Perform K-Means</h2>
+<p>Random Centers are initally chosen.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href=""></a>k <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb13-2"><a href=""></a>retval, labels, centers <span class="op">=</span> cv2.kmeans(pixel_vals, k, <span class="va">None</span>, criteria, <span class="dv">10</span>, cv2 KMEANS_RANDOM_CENTERS)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="convert-data-into-8-bit-and-then-into-the-original-image-dimension" class="slide level2">
+<h2>Convert Data into 8-Bit and then into the original image dimension</h2>
+<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href=""></a><span class="co"># convert data into 8-bit values</span></span>
+<span id="cb14-2"><a href=""></a>centers <span class="op">=</span> np.uint8(centers)</span>
+<span id="cb14-3"><a href=""></a>segmented_data <span class="op">=</span> centers[labels.flatten()]</span>
+<span id="cb14-4"><a href=""></a> </span>
+<span id="cb14-5"><a href=""></a><span class="co"># reshape data into the original image dimensions</span></span>
+<span id="cb14-6"><a href=""></a>segmented_image <span class="op">=</span> segmented_data.reshape((image.shape))</span>
+<span id="cb14-7"><a href=""></a></span>
+<span id="cb14-8"><a href=""></a>plt.imshow(segmented_image)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="thank-you" class="slide level2">
+<h2>Thank you</h2>
 
 </section>
     </div>
