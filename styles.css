@@ -1,12 +1,12 @@
 /* Pico CSS is handling most of the styling, these are just customizations */
 
 :root {
-    --primary: #2563eb;
-    --primary-hover: #1d4ed8;
-    --background: #f8fafc;
-    --card-bg: #ffffff;
-    --text-primary: #1e293b;
-    --text-secondary: #64748b;
+    --primary: #ea651e;
+    --primary-hover: #1d62d8;
+    --background: #1a1a1a;
+    --card-bg: #2d2d2d;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
 }
 
 body {
@@ -113,4 +113,9 @@ footer {
     padding: 2rem 0;
     text-align: center;
     color: var(--text-secondary);
+}
+
+/* Added to set the link for the personal website to white */
+a[href="https://pranavkarra.me"] {
+    color: white;
 }
