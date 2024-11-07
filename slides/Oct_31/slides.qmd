@@ -91,6 +91,16 @@ Two main categories:
 ![](flat.png)
 :::
 :::
+## Hierarchical Clustering Example {.scrollable}
+
+::: {.columns}
+::: {.column width="50%"}
+![](hcl.png)
+:::
+::: {.column width="50%"}
+![](dend.png)
+:::
+:::
 
 ## Clustering Examples: Image Segmentation {.smaller}
 
