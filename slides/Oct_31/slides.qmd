@@ -365,6 +365,10 @@ segmented_image = segmented_data.reshape((image.shape))
 
 plt.imshow(segmented_image)
 ```
+## Final Segmented Image
+
+![](final.png)
+
 
 ## Thank you
 
